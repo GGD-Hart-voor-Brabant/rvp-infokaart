@@ -1,0 +1,118 @@
+#volledige_deelname {
+  text-align: center;
+  color: #FFFFFF;
+  background-color: #63b450;
+}
+
+.cirkel{
+  
+  width: 50%;
+}
+
+.quarto-layout-row{
+  display: flex;
+  align-items: stretch;
+}
+
+.quarto-layout-cell{
+  margin-right: 0px;
+  display: flex;
+}
+
+#rijksvaccinatieprogramma-rvp,#maternale-kinkhoestvaccinatie-matk{
+  background-color: #e1f4fc;
+  
+}
+
+
+#basisimmuniteit-zuigelingen-volgens-rvp h1 {
+  margin-bottom: 0px;
+}
+
+
+#hpv-11-jaar p{
+  text-align: center;
+}
+
+h1 {
+
+background-color: #1a2c54;
+color: #FFFFFF;
+text-indent: 20px;
+font-size: 28px;
+margin-top: 10px;
+margin-bottom: 10px;
+
+}
+
+p {
+  
+  font-size: 12px;
+  padding: 4px;
+}
+
+#schoolkinderen{
+  
+  text-align: center;
+  height: 100%;
+  background-color: #e1f4fc;
+}
+
+
+#kleuters, #jongeren-14-jaar{
+
+  position: relative;
+  text-align: center;
+  height: 100%;
+  background-color: #e0f0dc;
+
+}
+
+#kleuters p, #jongeren-14-jaar p, #schoolkinderen p{
+ padding: 0px; 
+ margin: 0px;
+}
+
+
+#bol-kleuters-gemeente, #bol-jongeren-gemeente{
+  position: absolute;
+  width: 50%;
+  top: 30%;
+  left: 25%;
+  z-index: 10;
+}
+
+#bol-kleuters-regio, #bol-jongeren-regio{
+  position: absolute;
+  width: 50%;
+  top: 50%;
+  left: 0%;
+  z-index: 10;
+}
+#bol-kleuters-nl, #bol-jongeren-nl{
+  position: absolute;
+  width: 50%;
+  top: 50%;
+  left: 50%;
+  z-index: 10;
+}
+
+/* boxes met URL's voor kaarten */ 
+.box {
+  background-color: #D9ECF8;
+  border-radius: 25px;
+  padding-top: 3%;
+  padding-bottom: 3%;
+  padding-left: 3%;
+  text-align: center;
+}
+
+.box a{
+  font-size: 18px;
+}
+
+#bollen-basisimmuun p {
+  
+  font-size: 24px;
+}
+

@@ -1,0 +1,44 @@
+<script>
+  function abbrv_toc() {
+    console.log("Running abbrv_toc script...");
+
+    let toc = document.querySelectorAll('nav#TOC li>a');
+
+    toc.forEach(e => {
+      let href = e.getAttribute('href');
+
+      if (href) {
+        let id = href.substring(1); // Remove the '#' at the beginning
+
+        let sec = document.getElementById(id);
+        if (sec) {
+
+          let toc_text = sec.getAttribute('data-toc-text');
+          if (toc_text != null) {
+
+            e.innerHTML = toc_text;  // Directly set the TOC entry text
+          } else {
+            console.log("No data-toc-text found for section:", id);
+          }
+        } else {
+          console.log("No section found for ID:", id);
+        }
+      } else {
+        console.log("No href found for TOC entry.");
+      }
+    });
+  };
+
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    abbrv_toc();
+  });
+</script>
+<html xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882"><head>
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:_dlc_DocId msdt:dt="string">HVBDOC-2105918694-179055</mso:_dlc_DocId>
+<mso:_dlc_DocIdItemGuid msdt:dt="string">e93d2df3-ffdc-4ffc-b9f0-854859de2b00</mso:_dlc_DocIdItemGuid>
+<mso:_dlc_DocIdUrl msdt:dt="string">https://hetservicecentrum.sharepoint.com/sites/hvbtonderzoek/_layouts/15/DocIdRedir.aspx?ID=HVBDOC-2105918694-179055, HVBDOC-2105918694-179055</mso:_dlc_DocIdUrl>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
+</head>

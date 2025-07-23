@@ -1,0 +1,924 @@
+---
+title: ""
+format:
+  html:
+    page-layout: full
+    css: scripts/custom.css
+    embed-resources: true
+include-after-body: scripts/abbrv_toc.html
+number-sections: false
+toc: true
+toc-location: left
+toc-title: "Inhoudsopgave"
+params:
+  excel_bestand: "data/Vaccgraad_GGD West-Brabant_2021tm2025_incllft.xlsx"
+  gemeentenaam: "Breda"
+  ggd: "GGD West-Brabant"
+  ggd_afkorting: "WB"
+  zonder_leeftijd: false
+execute:
+  echo: false
+  warning: false
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r, setup}
+
+library(ggplot2)
+library(gt)
+library(dplyr)
+library(glue)
+library(sf)
+library(stringr)
+library(tidyr)
+library(leaflet)
+library(kableExtra)
+library(cbsodataR)
+
+options(dplyr.summarise.inform = FALSE)
+
+#hulpfuncties lezen
+source("scripts/hulpfuncties.R")
+#rvp-data uit excel koppelen aan historische statline data
+
+
+source("scripts/lees_data_rivm.R")
+ 
+#Categorieen voor excelbestand RIVM
+cohorten = c("Zuigelingen","Kleuters","Schoolkinderen","Adolescente_meisjes", "Adolescente_jongens", "Adolescenten", "Zwangeren")
+vaccinsoort = c("D\\(K\\)TP","Hib","HepB","Pneu","BMR","MenC/ACWY","HPV","Alles","MATK")
+vaccinatietoestand = c("Primaire_serie","Basisimmuun","Volledig_afgesloten","Volledige_deelname","Totaal*")
+  
+
+#lees_data_rivm leest de gegevens uit het excel bestand en voegt die toe aan historische statline data.
+#zie lees_data_rivm.R
+rvp_data = lees_data_rivm(excel_bestand = params$excel_bestand,
+                          ggd_naam = params$ggd,
+                          zonder_leeftijd = params$zonder_leeftijd)
+
+
+kleur_gemeente = "#009BD9" 
+kleur_regio =  "#63b450"
+kleur_nl = "#1a2c54"
+
+#Naam ggd zonder "GGD"
+ggd_naam = str_remove(params$ggd, "GGD ")
+
+tooltip_anoniem = "Het RIVM kan sinds enkele jaren niet meer de precieze vaccinatiegraad geven. Dat komt doordat het sinds 2022 een deel van de vaccinaties anoniem ontvangt. Deze anonieme vaccinaties houden in dat ouders/verzorgers geen toestemming geven om de vaccinatiegegevens van hun kind met het RIVM te delen. Deze vaccinaties kunnen niet worden meegeteld voor de vaccinatiegraad, omdat de aanvullende informatie, zoals het geboortejaar, onbekend is. Het aandeel anonieme vaccinaties verschilt daarnaast ook over de tijd, maar ook per JGZ-organisatie, per werkgebied en per vaccinsoort. Dit jaar is het % anonieme vaccinaties lager dan vorig jaar. Hierdoor is het extra belangrijk om voorzichtig te zijn bij het trekken van conclusies op basis van de geregistreerde vaccinatiegraad"
+
+```
+
+![](images/Meningokokkenvaccinatie-en-HPV-vaccinatie-2018.png){fig-alt="Kind krijgt vaccin"}
+
+# Inleiding
+
+Het Rijksvaccinatieprogramma (RVP) heeft als doel inwoners te beschermen tegen ernstige infectieziekten door middel van vaccinatie. Een vaccinatiegraad van minimaal 90% (95% voor mazelen) is daarbij van belang om ook mensen te beschermen die (nog) niet gevaccineerd kunnen worden. 
+Landelijk lijkt de vaccinatiegraad bij zuigelingen en kleuters in 2024 iets te zijn afgenomen ten opzichte van 2023. De HPV-vaccinatiegraad is daarentegen gestegen ten opzichte van vorig jaar, vooral onder jongens. Ook zwangeren lijken zich vaker te laten vaccineren tegen kinkhoest en griep ten opzichte van 2023. Voor overige vaccinaties lijkt de vaccinatiegraad in 2024 gelijk te zijn gebleven ten opzichte van 2023. Wel is er sinds 2015-2016 een dalende trend zichtbaar voor veel vaccinaties. 
+
+Deze factsheet geeft een kort overzicht van de vaccinatiegraad van kinderen op basis van het meest recente RIVM-jaarverslag. Het betreft een gemeentelijk overzicht, waarbij er vergeleken wordt met regionale en landelijke cijfers. Bij elke tabel, staat kort omschreven waar rekening mee gehouden dient te worden in de interpretatie en wat de regionale duiding per vaccinatie is. 
+
+Bij alle cijfers geldt dat het RIVM de vaccinatiegraad zo goed mogelijk heeft ingeschat, maar dat een deel van de vaccinaties <abbr title="`r tooltip_anoniem`">**anoniem**</abbr> is. De werkelijke vaccinatiegraad is daardoor iets hoger dan de gerapporteerde vaccinatiegraad. In 2024 werd landelijk 3% van de RVP-vaccinaties anoniem geregistreerd. Voor de GGD-regio West-Brabant lag dit percentage iets hoger, namelijk op gemiddeld 3,4%. Dit geldt voor alle vaccinaties voor kinderen tussen 4 en 18 jaar in West-Brabant en voor de vaccinaties van 0-4 jarigen in de gemeenten waar de GGD verantwoordelijk is de zorg voor 0-4 jarigen. In de gemeenten binnen West-Brabant waar Thuiszorg West-Brabant verantwoordelijk is voor de zorg aan 0-4 jarigen, was het aandeel anonieme vaccinaties aanzienlijk lager, met gemiddeld 1,7 %.
+
+# Zuigelingen (2 jaar) 
+
+
+```{r}
+tooltip_manier_van_registreren = "Nog aanvullen met uitleg"
+```
+
+Landelijk lijkt de vaccinatiegraad bij zuigelingen in 2024 iets te zijn afgenomen ten opzichte van 2023. 
+Binnen regio West-Brabant lijkt de vaccinatiegraad bij zuigelingen grotendeels stabiel te zijn gebleven. In de cijfers is een lichte stijging zichtbaar, die vermoedelijk samenhangt met een afname van het aantal anonieme vaccinaties. Voor DKTP onder zuigelingen is regionaal een iets grotere stijging te zien, welke waarschijnlijk wordt veroorzaakt doordat minder mensen hun kinderen anoniem laten vaccineren én door <abbr title="`r tooltip_manier_van_registreren`">**een andere manier van registreren**</abbr> ten opzichte van 2023. Hierdoor is het aannemelijk dat ook de daadwerkelijke vaccinatiegraad voor DKTP onder zuigelingen in werkelijkheid stabiel is gebleven. 
+
+## Volledige deelname van zuigelingen aan het RVP op 2 jarige leeftijd:
+::: {#volledige_deelname}
+
+::: {#bollen-basisimmuun layout="[30,30,30]"}
+::: column
+**`r params$gemeentenaam`**
+
+```{r}
+#% gemeente
+rvp_data %>% 
+  filter(vaccinatie == "Alles",
+         regio == params$gemeentenaam,
+         jaar == 2024
+         ) %>% 
+  pull(percentage) %>% 
+  round(1) %>%  
+  bol_met_cijfer_rvp(kleur = kleur_gemeente) %>% 
+  knitr::raw_html()
+
+```
+:::
+
+::: column
+**Regio `r ggd_naam`**
+
+```{r}
+#Regio
+rvp_data %>% 
+  filter(vaccinatie == "Alles",
+         regio == params$ggd,
+         jaar == 2024
+         ) %>% 
+  pull(percentage) %>% 
+  round(1) %>%  
+  bol_met_cijfer_rvp(kleur = "#6c9869") %>% 
+  knitr::raw_html()
+
+```
+:::
+
+::: column
+**Nederland**
+
+```{r}
+#NL 
+rvp_data %>% 
+  filter(vaccinatie == "Alles",
+         regio == "Nederland",
+         jaar == 2024
+         ) %>% 
+  pull(percentage) %>% 
+  round(1) %>%  
+  bol_met_cijfer_rvp(kleur = kleur_nl) %>% 
+  knitr::raw_html()
+
+```
+:::
+:::
+
+:::
+
+## Pneumokokken volledig afgesloten
+
+::: panel-tabset
+## Grafiek
+
+```{r, fig.width=12, fig.height=4}
+data_pneu_zuigelingen <- rvp_data %>% 
+  filter(
+    jaar > 2013,
+    vaccinatie == "Pneu",
+    cohort == "Zuigelingen",
+    vaccinatietoestand != "Primaire_serie", #antwoord maartje afwachten of het primair / volledig moet zijn
+    regio %in% c("Nederland", params$ggd, params$gemeentenaam)) %>% 
+  select(-c(vaccinatietoestand,cohort, vaccinatie)) #%>% 
+  # mutate(jaar = case_when(
+  #   jaar == 2021 ~ paste0(jaar,"*"),
+  #   jaar > 2021 ~ paste0(jaar,"**"),
+  #   TRUE ~ as.character(jaar)
+  # )) 
+  # 
+  
+
+
+data_pneu_zuigelingen %>% 
+  maak_staafdiagram(gemeentenaam = params$gemeentenaam,
+                    ggd_naam = params$ggd,
+                    ggd_afkorting = params$ggd_afkorting)
+
+```
+
+## Tabel
+
+```{r, fig.width=12, fig.height=4}
+data_pneu_zuigelingen %>%
+  mutate(percentage = round(percentage,1)) %>%
+  arrange(jaar) %>% 
+  pivot_wider(names_from = jaar, values_from = percentage) %>% 
+  gt(
+    rowname_col = "regio"
+  )
+```
+
+
+:::
+
+```{r}
+#TODO: Hier de popup tekst invullen
+tooltip_basisimmuun = "op 2 jarige leeftijd heeft het kind het aanbevolen aantal vaccinaties ontvangen. Op latere leeftijd volgt nog een vaccinatie "
+
+```
+
+## BMR <abbr title="`r tooltip_basisimmuun`">**Basisimmuun (2 jaar)**</abbr>
+
+::: panel-tabset
+## Grafiek
+
+```{r, fig.width=12, fig.height=4}
+data_bmr_zuigelingen <- rvp_data %>% 
+  filter(
+    jaar > 2013,
+    vaccinatie == "BMR",
+    cohort == "Zuigelingen",
+    vaccinatietoestand != "Primaire_serie",
+    regio %in% c("Nederland",params$ggd, params$gemeentenaam)) %>%
+  select(-c(vaccinatietoestand,cohort, vaccinatie)) #%>% 
+  # mutate(jaar = case_when(
+  #   jaar == 2021 ~ paste0(jaar,"*"),
+  #   jaar > 2021 ~ paste0(jaar,"**"),
+  #   TRUE ~ as.character(jaar)
+  # ))
+  
+  
+data_bmr_zuigelingen %>% 
+    maak_staafdiagram(gemeentenaam = params$gemeentenaam,
+                    ggd_naam = params$ggd,
+                    ggd_afkorting = params$ggd_afkorting)
+```
+
+
+## Tabel
+
+```{r}
+data_bmr_zuigelingen %>%
+  mutate(percentage = round(percentage,1)) %>%
+  arrange(jaar) %>% 
+  pivot_wider(names_from = jaar, values_from = percentage) %>%
+  gt(
+    rowname_col = "regio"
+  )
+```
+
+
+:::
+
+## DKTP <abbr title="`r tooltip_basisimmuun`">**Basisimmuun (2 jaar)**</abbr>
+
+
+::: panel-tabset
+## Grafiek
+
+```{r, fig.width=12, fig.height=4}
+data_dktp_zuigelingen <- rvp_data %>% 
+  filter(
+    jaar > 2013,
+    vaccinatie == "D(K)TP",
+    cohort == "Zuigelingen",
+    vaccinatietoestand != "Primaire_serie",
+    regio %in% c("Nederland",params$ggd, params$gemeentenaam)) %>% 
+  select(-c(vaccinatietoestand,cohort, vaccinatie)) #%>% 
+  # mutate(jaar = case_when(
+  #   jaar == 2021 ~ paste0(jaar,"*"),
+  #   jaar > 2021 ~ paste0(jaar,"**"),
+  #   TRUE ~ as.character(jaar)
+  # ))
+  # 
+  
+
+
+data_dktp_zuigelingen %>% 
+      maak_staafdiagram(gemeentenaam = params$gemeentenaam,
+                    ggd_naam = params$ggd,
+                    ggd_afkorting = params$ggd_afkorting)
+
+```
+
+
+
+## Tabel
+
+```{r, fig.width=12, fig.height=4}
+data_dktp_zuigelingen %>%
+  mutate(percentage = round(percentage,1)) %>%
+  arrange(jaar) %>% 
+  pivot_wider(names_from = jaar, values_from = percentage) %>% 
+  gt(
+    rowname_col = "regio"
+  )
+```
+
+:::
+
+
+
+## HiB, Hepatitis B en Pneumokokken volledig gevaccineerd, MenACWY <abbr title="`r tooltip_basisimmuun`">**Basisimmuun (2 jaar)**</abbr> in gemeente `r params$gemeentenaam`
+
+::: panel-tabset
+## Grafiek
+
+```{r, fig.width=12, fig.height=4}
+
+data_overig_zuigelingen <- rvp_data %>% 
+  filter(
+    jaar > 2013,
+    cohort == "Zuigelingen",
+    vaccinatie %in% c("Hib","HepB","Pneu","MenC/ACWY"),
+    vaccinatietoestand != "Primaire_serie",
+    regio == params$gemeentenaam) %>% 
+  select(-c(cohort, vaccinatietoestand))
+
+
+data_overig_zuigelingen %>% 
+  maak_staafdiagram(gemeentenaam = params$gemeentenaam,
+                    categorie_kleur = "vaccinatie",
+                    kleuren_categorie = c(
+                      "#009BD9",
+                      "#63b450",
+                      "#1a2c54",
+                      "#FEC80F")
+                    )
+
+```
+
+## Tabel
+
+```{r}
+data_overig_zuigelingen %>% 
+  select(-regio) %>% 
+  mutate(percentage = round(percentage,1)) %>% 
+  arrange(jaar) %>% 
+  pivot_wider(names_from = jaar, values_from = percentage) %>% 
+  gt(
+    rowname_col = "vaccinatie"
+  )
+
+```
+
+:::
+
+# Kaarten basisimmuniteit Zuigelingen
+
+Vanwege de verandering in de registratiemethode tonen we geen trend voor de vaccinatiegraad DKTP. Omdat deze verandering niet geldt voor de pneumokokken, en deze vaccinatie zelden apart wordt gegeven van de DKTP, tonen we wel de trend voor de pneumokokken vaccinatie.
+
+::: panel-tabset
+## Kaart BMR en Pneumokokken
+
+```{r}
+
+#TODO obv eerste opzet 2025:
+
+#Zuigelingen BMR incl leeftijdsgrens en trend van afgelopen 3 jaar.
+#DKTP Incl leeftijdsgrens ALLEEN 2025
+#Pneumokokken incl leeftijdsgrens en trend van afgelopen 3 jaar
+
+#Aangepast van https://github.com/ggdatascience/rvp_vaccinatiegraad_rivm 
+#kaart per pc4, pneu & bmr zuigelingen, filtert op gemeente.
+source("scripts/maak_leaflet_RVP_schets.R")
+
+
+#pneu en bmr samen in 1 kaart
+kaart_bmr_pneu <- maak_leaflet_rvp_schets(bestand = params$excel_bestand,
+                                 cohorten = "Zuigelingen",
+                                 vaccinatietoestand = c("Basisimmuun","Volledig_afgesloten"),
+                                 vaccinsoort = c("BMR","Pneu"),
+                                 aantal_jaren_meenemen = 3)
+
+kaart_bmr_pneu
+
+```
+
+## Kaart D(K)TP
+
+```{r}
+#DKTP Los want zonder trend
+kaart_dktp <- maak_leaflet_rvp_schets(bestand = params$excel_bestand,
+                                 cohorten = "Zuigelingen",
+                                 vaccinatietoestand = c("Basisimmuun"),
+                                 vaccinsoort = "D\\(K\\)TP",
+                                 aantal_jaren_meenemen = 1)
+
+kaart_dktp
+```
+
+:::
+
+::: {.callout-warning title="Let op"}
+Let op bij de interpretatie van deze data: in postcodegebieden met minder dan 50 kinderen is het vaccinatiegraadpercentage zeer gevoelig voor fluctuatie. Postcodegebieden met minder <15 kinderen van 2 jaar oud worden daarnaast niet getoond.
+:::
+
+# Overige vaccinaties: `r params$gemeentenaam`
+
+::: {layout="[[30,30,30]]"}
+
+::: column
+
+<!-- Geen idee welke absurde pandoc html interactie dit hieronder veroorzaakt maar de header van de 1e kolom komt als titel uit. Vanwege tijdsdruk maar even geaccepteerd TODO: Dit normaal maken -->
+# Infokaart `r params$gemeentenaam`
+<h1>Kleuters</h1>
+
+**D(K)TP**
+
+*% voldoende beschermd*
+
+::: panel-tabset
+
+## Grafiek
+
+```{r}
+
+dktp_kleuters <- rvp_data %>% filter(
+  cohort == "Kleuters",
+  vaccinatie == "D(K)TP",
+  regio %in% c("Nederland",params$ggd, params$gemeentenaam),
+  jaar %in% c(2022,2023,2024)
+) 
+
+dktp_kleuters %>% 
+    maak_staafdiagram(gemeentenaam = params$gemeentenaam,
+                    hoek_tekst = 0,
+                    grootte_tekst = 6,
+                    ggd_naam = params$ggd,
+                    ggd_afkorting = params$ggd_afkorting) +
+    theme(
+    panel.background = element_rect(fill = "#e1f4fc", colour = NA), # bg of the panel
+    plot.background = element_rect(fill = "#e1f4fc", color = NA), # bg of the plot
+    panel.grid.major = element_blank(), # get rid of major grid
+    panel.grid.minor = element_blank(), # get rid of minor grid
+  )
+```
+
+## Tabel
+```{r}
+
+dktp_kleuters %>% 
+  select(-c(cohort,vaccinatietoestand, vaccinatie)) %>% 
+  mutate(percentage = round(percentage,1)) %>% 
+  pivot_wider(names_from = jaar, values_from = percentage) %>% 
+  gt(
+    rowname_col = "regio"
+  )
+
+```
+
+:::
+
+:::
+
+::: column
+# Schoolkinderen
+
+**DTP en BMR**
+
+*% volledig gevaccineerd*
+
+::: panel-tabset
+## Grafiek
+
+```{r}
+
+dktp_bmr_schoolkinderen <- rvp_data %>% 
+  filter(cohort == "Schoolkinderen",
+         vaccinatie %in% c("BMR","D(K)TP"),
+         vaccinatietoestand == "Volledig_afgesloten",
+         regio %in% c("Nederland",params$ggd, params$gemeentenaam),
+         jaar == max(jaar)
+         ) 
+
+
+
+dktp_bmr_schoolkinderen %>% 
+  maak_staafdiagram(gemeentenaam = params$gemeentenaam,
+                    periode = "vaccinatie",
+                    hoek_tekst = 0,
+                    grootte_tekst = 10,
+                    ggd_naam = params$ggd,
+                    ggd_afkorting = params$ggd_afkorting) + 
+  
+  theme(
+    panel.background = element_rect(fill = "#e1f4fc", colour = NA), # bg of the panel
+    plot.background = element_rect(fill = "#e1f4fc", color = NA), # bg of the plot
+    panel.grid.major = element_blank(), # get rid of major grid
+    panel.grid.minor = element_blank(), # get rid of minor grid
+  )
+
+```
+
+## Tabel
+
+```{r}
+dktp_bmr_schoolkinderen %>% 
+  select(-c(cohort,vaccinatietoestand,jaar)) %>% 
+  mutate(percentage = round(percentage,1)) %>% 
+  pivot_wider(names_from = vaccinatie, values_from = percentage) %>% 
+  gt(
+    rowname_col = "regio"
+  )
+```
+
+:::
+
+:::
+
+::: column
+# Jongeren (14 jaar)
+
+**Meningokokken ACWY**
+
+*% volledig gevaccineerd*
+
+::: {#bol-jongeren-gemeente}
+
+```{r}
+
+
+kolommen_men_acwy = c("X50","X51","X52")
+
+
+percentage_nl = lees_cijfers_nl(jaar = "2025",
+                                bestand = params$excel_bestand,
+                                zonder_leeftijd = params$zonder_leeftijd,
+                                verwijder_kolommen = NULL,
+                                behoud_kolommen = kolommen_men_acwy) %>% 
+  pull(`%`) %>% 
+  as.numeric() * 100 
+  
+
+df_gemeente = lees_cijfers_gemeente_pc4(jaar = "2025",
+                                         bestand = params$excel_bestand,
+                                         zonder_leeftijd = params$zonder_leeftijd, 
+                                         verwijder_kolommen = NULL,
+                                         behoud_kolommen = kolommen_men_acwy) %>% 
+  filter(!str_detect(id,"[:digit:]{4}")) %>% 
+  rename("aantal_clienten" = 2,
+         "aantal_gevaccineerd" = 3,
+         "percentage" = 4) 
+
+
+percentage_gemeente = df_gemeente %>% filter(gemeentenaam == params$gemeentenaam) %>% pull(percentage)
+
+percentage_regio = df_gemeente %>% 
+  summarise(aantal_clienten = sum(aantal_clienten),
+            aantal_gevaccineerd = sum(aantal_gevaccineerd)) %>% 
+  mutate(percentage = round(aantal_gevaccineerd / aantal_clienten * 100, 1)) %>% 
+  pull(percentage)
+
+
+percentage_gemeente %>%
+  round(1) %>%
+  bol_met_cijfer_rvp(kleur = kleur_gemeente,
+                     kleur_outline = "#000000"
+                     ) %>%
+  knitr::raw_html()
+```
+
+`r params$gemeentenaam`
+:::
+
+::: {#bol-jongeren-regio}
+
+```{r}
+  percentage_regio %>%
+  round(1) %>%
+  bol_met_cijfer_rvp(kleur = kleur_regio,
+                     kleur_outline = "#000000") %>%
+  knitr::raw_html()
+```
+
+Regio `r ggd_naam`
+:::
+
+::: {#bol-jongeren-nl}
+
+
+```{r}
+percentage_nl %>% 
+  round(1) %>%
+  bol_met_cijfer_rvp(kleur = kleur_nl,
+                     kleur_outline = "#000000") %>%
+  knitr::raw_html()
+```
+
+Nederland
+:::
+:::
+:::
+
+# Vaccinatiegraad per gemeente
+
+::: {#urls_kaarten layout-ncol="4"}
+::: box
+<a href = "https://www.vzinfo.nl/vaccinaties/regionaal/zuigelingen">
+Zuigelingen ![](images/kinderwagen.svg) </a>
+:::
+
+::: box
+<a href = "https://www.vzinfo.nl/vaccinaties-regionaal/kleuters">
+Kleuters ![](images/speelgoed.svg) </a>
+:::
+
+::: box
+<a href = "https://www.vzinfo.nl/vaccinaties-regionaal/schoolkinderen">
+Schoolkinderen ![](images/school.svg) </a>
+:::
+  
+::: box
+<a href = "https://www.vzinfo.nl/vaccinaties-regionaal/adolescenten">
+Adolescenten ![](images/hobby.svg) </a>
+:::
+:::
+
+```{r}
+
+
+if(params$ggd_afkorting == "WB"){
+  
+excel_bestand_hpv = "data/HPV_WB.xlsx"
+  
+} else if(params$ggd_afkorting == "HvB"){
+
+excel_bestand_hpv = "data/HPV_HvB.xlsx"
+  
+} 
+
+
+  #TODO Dubbele correctie op jaar terugzetten TODO: Met jet checken
+  #TODO Jet vertellen dat NL totaal terug naar rij 9 is gezet
+
+
+jaren = 2022:2024 %>% as.character()
+
+hpv_nl = lapply(jaren, function(jaar){
+
+  lees_cijfers_nl(
+    jaar = jaar,
+    bestand = excel_bestand_hpv,
+    zonder_leeftijd = TRUE,
+    verwijder_kolommen = NULL)
+
+  }) %>% 
+  do.call(rbind,.) %>% 
+  mutate(percentage =  round(as.numeric(`%`), 1)) %>%
+  filter(!is.na(Aantal_clienten)) %>%
+  mutate(cohort = str_extract(name, paste0(cohorten, collapse = "|")),
+         vaccinatie = str_extract(name, paste0(vaccinsoort, collapse = "|")),
+         vaccinatietoestand = str_extract(name, paste0(vaccinatietoestand, collapse = "|")),
+         regio = "NL",
+         
+         jaar = jaar + 1 #Jaar in sheet is itt standaardbestand al het jaar van de data (ipv het krijge vna de data)
+         #dubbele correctie corrigeren
+         ) %>% 
+  select(jaar, cohort, regio, percentage)
+
+
+hpv_gemeente = lapply(jaren, function(jaar){
+  
+ lees_cijfers_gemeente_pc4(jaar = jaar,
+                           bestand = excel_bestand_hpv,
+                           zonder_leeftijd = TRUE,
+                           verwijder_kolommen = NULL) 
+  
+}) %>%  
+  do.call(rbind,.) %>%
+  
+  
+  pivot_longer(contains("_")) %>%
+  mutate(
+    #Type cijfer ophalen (aantal gevaccineerd,aantal clienten en %)
+        type_cijfer = str_extract(name,"(?<=nvt_).*$"), 
+        
+        #Inhoudelijke naam ophalen
+        name = str_remove(name,"_nvt.*")) %>%
+  #Weer breed maken; kolom per type cijfer
+  pivot_wider(values_from = value,
+              names_from = type_cijfer) %>% 
+  mutate(cohort = str_extract(name, paste0(cohorten, collapse = "|")),
+         percentage = round(`%` / 100, 1),
+         
+                  jaar = jaar + 1 #Jaar in sheet is itt standaardbestand al het jaar van de data (ipv het krijge vna de data)
+         #dubbele correctie corrigeren
+         ) %>% 
+  select(jaar, cohort, percentage, Aantal_clienten, Aantal_clienten_gevaccineerd, gemeentenaam)
+#N-clienten en gevaccineerd bewaren om regio uit te rekenen
+  
+
+hpv_regio = hpv_gemeente %>% 
+  group_by(jaar, cohort) %>% 
+  summarise(Aantal_clienten = sum(Aantal_clienten),
+            Aantal_clienten_gevaccineerd = sum(Aantal_clienten_gevaccineerd)) %>% 
+  mutate(percentage = round(Aantal_clienten_gevaccineerd / Aantal_clienten * 100,1),
+         regio = params$ggd
+         ) %>%
+  select(jaar, cohort, regio, percentage)
+  
+
+hpv_gemeente <- hpv_gemeente %>% 
+  filter(gemeentenaam == params$gemeentenaam) %>% 
+  mutate(regio = gemeentenaam) %>% 
+  select(jaar, cohort, regio, percentage)
+
+hpv_data_rapport_2025 <- rbind(hpv_nl, hpv_regio, hpv_gemeente)
+
+```
+
+::: {layout="[50,50]"}
+::: column
+# HPV Meisjes vanaf 2022 
+::: panel-tabset
+## Grafiek
+
+```{r, fig.width=6, fig.height=3}
+hpv_meisjes <- hpv_data_rapport_2025 %>% 
+  filter(cohort == "Adolescente_meisjes") %>% 
+  mutate(jaar = paste0(jaar,"*"))
+
+hpv_meisjes %>% 
+  maak_staafdiagram(gemeentenaam = params$gemeentenaam,
+                    ggd_naam = params$ggd,
+                    ggd_afkorting = params$ggd_afkorting)
+```
+
+\* zonder leeftijdsgrens en zonder anonieme vaccinaties
+
+## Tabel
+
+```{r}
+hpv_meisjes %>%
+  mutate(percentage = round(percentage,1)) %>%
+  select(-cohort) %>% 
+  arrange(jaar) %>%
+  pivot_wider(names_from = jaar, values_from = percentage) %>%
+  gt(
+    rowname_col = "regio"
+  )
+```
+
+\* zonder leeftijdsgrens en zonder anonieme vaccinaties
+:::
+:::
+
+::: column
+# HPV Jongens vanaf 2022
+
+::: panel-tabset
+## Grafiek
+
+```{r, fig.width=6, fig.height=3}
+hpv_jongens <- hpv_data_rapport_2025 %>% 
+  filter(cohort == "Adolescente_jongens") %>% 
+  mutate(jaar = paste0(jaar,"*"))
+
+hpv_jongens %>% 
+  maak_staafdiagram(gemeentenaam = params$gemeentenaam,
+                    ggd_naam = params$ggd,
+                    ggd_afkorting = params$ggd_afkorting)
+
+```
+
+\*\* zonder leeftijdsgrens en zonder anonieme vaccinaties
+
+## Tabel
+
+
+```{r}
+hpv_jongens %>%
+  mutate(percentage = round(percentage,1)) %>%
+  select(-cohort) %>% 
+  arrange(jaar) %>%
+  pivot_wider(names_from = jaar, values_from = percentage) %>%
+  gt(
+    rowname_col = "regio"
+  )
+
+
+```
+
+\*\* zonder leeftijdsgrens en zonder anonieme vaccinaties
+:::
+:::
+:::
+
+\* de HPV-vaccinatie wordt vanaf 2022 zowel aan jongens als meisjes
+aangeboden in het jaar dat ze 10 worden. De jaren daarvoor was dit op
+13-jarige leeftijd en werd de vaccinatie alleen aan meisjes aangeboden
+
+# Maternale kinkhoestvaccinatie
+
+In GGD regio West-Brabant, is net als landelijk het percentage zwangeren dat de maternale kinkhoestvaccinatie nam in 2024 gestegen ten opzichte van 2023.  
+
+Ook bij de MATK-vaccinatie is sprake van anonieme vaccinaties. In 2024 werd landelijk 10% van maternale kinkhoestvaccinaties anoniem geregistreerd. Binnen regio West-Brabant was dit 5-6%.
+
+**Maternale kinkhoestvaccinatie (MATK)** 22 wekenprik, vrouwen met een
+kind geboren in de periode januari-december 2023
+
+::: panel-tabset
+## Grafiek
+
+```{r, fig.width=12, fig.height=4}
+
+
+if(params$ggd_afkorting == "WB"){
+  
+excel_bestand_matk = "data/MATK_WB.xlsx"
+  
+} else if(params$ggd_afkorting == "HvB"){
+
+excel_bestand_matk = "data/MATK_HvB.xlsx"
+  
+} 
+
+
+  #TODO Dubbele correctie op jaar terugzetten TODO: Met jet checken
+  #TODO Jet vertellen dat NL totaal terug naar rij 9 is gezet
+
+
+jaren = 2022:2024 %>% as.character()
+
+matk_nl = lapply(jaren, function(jaar){
+
+  lees_cijfers_nl(
+    jaar = jaar,
+    bestand = excel_bestand_matk,
+    zonder_leeftijd = TRUE,
+    verwijder_kolommen = NULL)
+
+  }) %>% 
+  do.call(rbind,.) %>% 
+  mutate(percentage =  round(as.numeric(`%`), 1)) %>%
+  filter(!is.na(Aantal_clienten)) %>%
+  mutate(cohort = str_extract(name, paste0(cohorten, collapse = "|")),
+         vaccinatie = str_extract(name, paste0(vaccinsoort, collapse = "|")),
+         vaccinatietoestand = str_extract(name, paste0(vaccinatietoestand, collapse = "|")),
+         regio = "NL",
+         jaar = jaar + 1 
+         #Jaar in sheet is itt standaardbestand al het jaar van de data (ipv het krijge vna de data)
+         #dubbele correctie corrigeren
+         ) %>% 
+  select(jaar, cohort, regio, percentage)
+
+
+matk_gemeente = lapply(jaren, function(jaar){
+  
+ lees_cijfers_gemeente_pc4(jaar = jaar,
+                           bestand = excel_bestand_matk,
+                           zonder_leeftijd = TRUE,
+                           verwijder_kolommen = NULL) 
+  
+}) %>%  
+  do.call(rbind,.) %>%
+  
+  
+  pivot_longer(contains("_")) %>%
+  mutate(
+    #Type cijfer ophalen (aantal gevaccineerd,aantal clienten en %)
+        type_cijfer = str_extract(name,"(?<=nvt_).*$"), 
+        
+        #Inhoudelijke naam ophalen
+        name = str_remove(name,"_nvt.*")) %>%
+  #Weer breed maken; kolom per type cijfer
+  pivot_wider(values_from = value,
+              names_from = type_cijfer) %>% 
+  mutate(cohort = str_extract(name, paste0(cohorten, collapse = "|")),
+         percentage = round(`%` / 100, 1),
+         
+                  jaar = jaar + 1 #Jaar in sheet is itt standaardbestand al het jaar van de data (ipv het krijge vna de data)
+         #dubbele correctie corrigeren
+         ) %>% 
+  select(jaar, cohort, percentage, Aantal_clienten, Aantal_clienten_gevaccineerd, gemeentenaam)
+#N-clienten en gevaccineerd bewaren om regio uit te rekenen
+  
+
+matk_regio = matk_gemeente %>% 
+  group_by(jaar, cohort) %>% 
+  summarise(Aantal_clienten = sum(Aantal_clienten),
+            Aantal_clienten_gevaccineerd = sum(Aantal_clienten_gevaccineerd)) %>% 
+  mutate(percentage = round(Aantal_clienten_gevaccineerd / Aantal_clienten * 100,1),
+         regio = params$ggd
+         ) %>%
+  select(jaar, cohort, regio, percentage)
+  
+
+matk_gemeente <- matk_gemeente %>% 
+  filter(gemeentenaam == params$gemeentenaam) %>% 
+  mutate(regio = gemeentenaam) %>% 
+  select(jaar, cohort, regio, percentage)
+
+matk_data_rapport_2025 <- rbind(matk_nl, matk_regio, matk_gemeente)
+
+
+matk_data_rapport_2025 %>% 
+  maak_staafdiagram(gemeentenaam = params$gemeentenaam,
+                    ggd_naam = params$ggd,
+                    ggd_afkorting = params$ggd_afkorting)
+
+```
+
+## Tabel
+
+```{r}
+matk_data_rapport_2025 %>% 
+  select(-cohort) %>% 
+  mutate(percentage = round(percentage,1)) %>% 
+  pivot_wider(names_from = jaar, values_from = percentage) %>% #select(regio, percentage) %>%
+  gt(rowname_col = "regio")
+
+
+```
+
+
+:::
+
+# Vaccinatieschema volgens RVP
+
+![](images/Vaccinatieschema_RIVM.png){fig-alt="Weergave van het vaccinatieschema 2024 met illustraties"}
+
+[Rijksvaccinatieprogramma Vaccinatieschema](https://rijksvaccinatieprogramma.nl/vaccinaties/vaccinatieschema)
+
+
+# Bronnen en meer informatie
+
+-   [Vaccinatiegraad en jaarverslag Rijksvaccinatieprogramma Nederland 2021, E.A. van Lier et al., RIVM-rapport DOI   10.21945/RIVM-2022-0017.](https://www.eerstekamer.nl/overig/20220711/vaccinatiegraad_en_jaarverslag/document)
+-   [Landelijke kaarten op gemeenteniveau](https://www.vzinfo.nl/vaccinaties)
