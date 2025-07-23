@@ -43,7 +43,8 @@ for(gemeentenaam in gemeenten_in_regio){
   
   #Bestand kopieren naar submap. Staat opgeruimder
   file.copy(from = glue::glue("infokaart_{gemeentenaam}.html"),
-            to = glue::glue("infokaarten/infokaart_{gemeentenaam}.html"))
+            to = glue::glue("infokaarten/infokaart_{gemeentenaam}.html"),
+            overwrite = TRUE)
   
   file.remove(glue::glue("infokaart_{gemeentenaam}.html"))
 
